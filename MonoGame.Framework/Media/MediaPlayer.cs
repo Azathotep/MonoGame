@@ -95,7 +95,6 @@ namespace Microsoft.Xna.Framework.Media
         private static CoreDispatcher _dispatcher;
 #endif
 #elif WINDOWS_MEDIA_SESSION
-
         private static readonly MediaSession _session;
         private static SimpleAudioVolume _volumeController;
         private static PresentationClock _clock;
