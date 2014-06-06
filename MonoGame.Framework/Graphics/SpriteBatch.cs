@@ -334,8 +334,8 @@ namespace Microsoft.Xna.Framework.Graphics
                   sourceRectangle,
                   color,
                   rotation,
-                  new Vector2(origin.X * ((float)destinationRectangle.W / (float)((sourceRectangle.HasValue && sourceRectangle.Value.Width != 0) ? sourceRectangle.Value.Width : texture.Width)),
-                                    origin.Y * ((float)destinationRectangle.Z) / (float)((sourceRectangle.HasValue && sourceRectangle.Value.Height != 0) ? sourceRectangle.Value.Height : texture.Height)),
+                  new Vector2(origin.X * ((float)destinationRectangle.Z / (float)((sourceRectangle.HasValue && sourceRectangle.Value.Width != 0) ? sourceRectangle.Value.Width : texture.Width)),
+                                    origin.Y * ((float)destinationRectangle.W) / (float)((sourceRectangle.HasValue && sourceRectangle.Value.Height != 0) ? sourceRectangle.Value.Height : texture.Height)),
                   effect,
                   depth);
         }
