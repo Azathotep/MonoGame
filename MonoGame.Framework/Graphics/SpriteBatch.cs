@@ -315,14 +315,72 @@ namespace Microsoft.Xna.Framework.Graphics
 			      depth);
 		}
 
+        /// <summary>
+        /// Added by me, this method is not part of XNA/MonoGame. Allows a destination rectangle (of floats) to be passed in bypassing all the scaling stuff 
+        /// </summary>
+        public void Draw(Texture2D texture,
+            Vector4 destinationRectangle,
+            Rectangle? sourceRectangle,
+            Color color,
+            float rotation,
+            Vector2 origin,
+            SpriteEffects effect,
+            float depth)
+        {
+            CheckValid(texture);
+
+            DrawInternal(texture,
+                  destinationRectangle,
+                  sourceRectangle,
+                  color,
+                  rotation,
+                  new Vector2(origin.X * ((float)destinationRectangle.Z / (float)((sourceRectangle.HasValue && sourceRectangle.Value.Width != 0) ? sourceRectangle.Value.Width : texture.Width)),
+                                    origin.Y * ((float)destinationRectangle.W) / (float)((sourceRectangle.HasValue && sourceRectangle.Value.Height != 0) ? sourceRectangle.Value.Height : texture.Height)),
+                  effect,
+                  depth);
+        }
+
+        /// <summary>
+        /// Draws a quadrilateral sprite. The texture will be incorrectly skewed as the transformation needed to map the texture coordiates is not linear. 
+        /// If a texture is required either the texture should itself be skewed or the quadrilateral drawn should be close to rectangular so that the skew is
+        /// not obvious
+        /// Not part of XNA/MonoGame
+        /// </summary>
+        public void DrawQuadrilateral(Texture2D texture,
+            Vector2 topLeft,
+            Vector2 topRight,
+            Vector2 bottomLeft,
+            Vector2 bottomRight,
+            Rectangle? sourceRectangle,
+            Color color,
+            float rotation,
+            Vector2 origin,
+            SpriteEffects effect,
+            float depth)
+        {
+            CheckValid(texture);
+
+            DrawInternal(texture,
+                  Vector4.Zero,
+                  sourceRectangle,
+                  color,
+                  rotation,
+                  new Vector2(origin.X * ((float)Math.Abs(bottomRight.X - topLeft.X) / (float)((sourceRectangle.HasValue && sourceRectangle.Value.Width != 0) ? sourceRectangle.Value.Width : texture.Width)),
+                                    origin.Y * ((float)Math.Abs(bottomRight.Y - topLeft.Y) / (float)((sourceRectangle.HasValue && sourceRectangle.Value.Height != 0) ? sourceRectangle.Value.Height : texture.Height))),
+                  effect,
+                  depth,
+                  new Vector2[] {topLeft, topRight, bottomLeft, bottomRight});
+        }
+
 		internal void DrawInternal (Texture2D texture,
-			Vector4 destinationRectangle,
+            Vector4 destinationRectangle,
 			Rectangle? sourceRectangle,
 			Color color,
 			float rotation,
 			Vector2 origin,
 			SpriteEffects effect,
-			float depth)
+			float depth,
+            Vector2[] corners = null)
 		{
 			var item = _batcher.CreateBatchItem();
 
@@ -354,18 +412,31 @@ namespace Microsoft.Xna.Framework.Graphics
 				_texCoordTL.X = temp;
 			}
 
-			item.Set (destinationRectangle.X,
-					destinationRectangle.Y, 
-					-origin.X, 
-					-origin.Y,
-					destinationRectangle.Z,
-					destinationRectangle.W,
-					(float)Math.Sin (rotation), 
-					(float)Math.Cos (rotation), 
-					color, 
-					_texCoordTL, 
-					_texCoordBR);			
-			
+            if (corners != null)
+            {
+                item.Set(corners[0], corners[1], corners[2], corners[3],
+                        -origin.X,
+                        -origin.Y,
+                        (float)Math.Sin(rotation),
+                        (float)Math.Cos(rotation),
+                        color,
+                        _texCoordTL,
+                        _texCoordBR);
+            }
+            else
+            {
+                item.Set(destinationRectangle.X,
+                        destinationRectangle.Y,
+                        -origin.X,
+                        -origin.Y,
+                        destinationRectangle.Z,
+                        destinationRectangle.W,
+                        (float)Math.Sin(rotation),
+                        (float)Math.Cos(rotation),
+                        color,
+                        _texCoordTL,
+                        _texCoordBR);
+            }
 			if (_sortMode == SpriteSortMode.Immediate)
                 _batcher.DrawBatch(_sortMode);
 		}
